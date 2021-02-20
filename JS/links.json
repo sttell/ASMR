@@ -1,0 +1,1 @@
+{"FuncCall": ["sc", "/home/ilyabiro/Documents/projects/assembler/func_call.c", "/home/ilyabiro/Documents/projects/assembler/func_call.s", "/home/ilyabiro/Documents/projects/ASMRunner/FuncCall.out"], "testC": ["c", "/home/ilyabiro/Documents/projects/ASMRunner/Modules/ASMRProjects/CDIR/testC.c", "/home/ilyabiro/Documents/projects/ASMRunner/Modules/ASMRProjects/OUTDIR/testC.out"]}
