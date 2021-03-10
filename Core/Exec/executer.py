@@ -13,6 +13,7 @@ class EXC:
 	"""
 	def __init__(self):
 		self.command_list = include.INCLUDES.keys()	# A list of available commands
+		self.command_dict = include.INCLUDES 		# A dict of command_name -> module
 		self.links = load_links()					# List of existing links
 
 	def run(self, command) -> int:
@@ -25,7 +26,7 @@ class EXC:
 		return_code = STRING_TO_CODE['COMMAND_NOT_FOUND']				# Standard return code - command not found
 
 		if self._is_command(command):									# If the command is standard
-			return_code = self._run_module(command.name, 'run', 
+			return_code = self._run_module(self.command_dict[command.name], 'run', 
 										   args=command.args,
 										   opts=command.options)			# The run function is run in the module specified in includes
 		
