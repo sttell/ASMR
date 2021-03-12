@@ -24,13 +24,8 @@ def opt_o(tr, link):
 
 
 def no_opt(tr, link):
-	if link[0] == 's':
-		os.system(tr + f' {link[1]}')
-	elif link[0] == 'sc':
-		os.system(tr + f' {link[1]}')
-		os.system(tr + f' {link[2]}')
-	elif link[0] == 'c':
-		os.system(tr + f' {link[1]}')
+	for file in link[1:-1]:
+		os.system(tr + f' {file}')
 
 
 def run(args, opts):

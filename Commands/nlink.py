@@ -2,6 +2,7 @@ import os
 from Core.JSRL.jsloader import load_links, update_links, load_settings
 
 ASM_SPEC = '.s'
+NASM_SPEC = '.asm'
 C_SPEC = '.c'
 
 
@@ -33,6 +34,10 @@ def inplace_opt(fp, ln, lt):
 		asm_path = create_file(fp[ASM_SPEC])
 		out_path = create_file(ln + '.out')
 		link_info = ['s', asm_path, out_path]
+	elif lt == 'NASM':
+		asm_path = create_file(fp[NASM_SPEC])
+		out_path = create_file(ln + '.out')
+		link_info = ['nasm', asm_path, out_path]
 	elif lt == 'NOTYPE':
 		return 1
 
@@ -130,16 +135,20 @@ def casm_opt(fp, ln, lt):
 def unparse_args(args):
 
 	mask = {ASM_SPEC: 0,
-			C_SPEC: 0}
+			C_SPEC: 0,
+			NASM_SPEC: 0}
 	fp_dict = {}
 
 	for arg in args:
 		if arg.endswith(ASM_SPEC):
 			mask[ASM_SPEC] += 1
 			fp_dict[ASM_SPEC] = arg
-		elif arg.endswith('.c'):
+		elif arg.endswith(C_SPEC):
 			mask[C_SPEC] += 1
 			fp_dict[C_SPEC] = arg
+		elif arg.endswith(NASM_SPEC):
+			mask[NASM_SPEC] += 1
+			fp_dict[NASM_SPEC] = arg
 		else:
 			link_name = arg
 
@@ -149,17 +158,48 @@ def unparse_args(args):
 		ltype = 'ASM'
 	elif mask[ASM_SPEC] == 0 and mask[C_SPEC] == 1:
 		ltype = 'C'
+	elif mask[NASM_SPEC] == 1:
+		ltype = 'NASM'
 	else:
 		ltype = 'NOTYPE'
 
 	return fp_dict, link_name, ltype
 
 
+def nasm_opt(fp, ln, lt):
+	links = load_links()
+	settings = load_settings()
+	if ln in links.keys():
+		print('Связка с таким именем существует.')
+		return 1
+
+	if lt == 'NOTYPE':
+		asm_path = create_file(ln + '.asm')
+		out_path = create_file(ln + '.out')
+		link_info = ['nasm', asm_path, out_path]
+		links[ln] = link_info
+		update_links(links)
+	else:
+		try:
+			asm_path = create_file(fp[NASM_SPEC])
+			out_path = create_file(ln + '.out')
+			link_info = ['nasm', asm_path, out_path]
+			links[ln] = link_info
+			update_links(links)
+		except KeyError:
+			print('Произошла ошбика создания связки. Неверно указано расширение создаваемого файла.')
+			return 1
+		except:
+			print('Произошла ошбика создания связки. Неверно указан файл или не удалось создать файл с таким именем.')
+			return 1
+
+
 def run(args, opts):
 	opt_funcs = {'-in': inplace_opt,
 	        '-c': c_opt,
 	        '-s': asm_opt,
-	        '-sc': casm_opt}
+	        '-sc': casm_opt,
+	        '-nasm': nasm_opt}
 	if args:
 		fp, ln, lt = unparse_args(args)
 	else:
@@ -198,9 +238,10 @@ asmr nlink -sc TestLink    --->   Создаст связку C + Assembler с �
 Так же вместо названия можно использовать абсолютные или относительные пути, если вы хотите создать файлы в разных местах.
 
 Опции:
-  -in | Создать файлы в текущей директории
-  -s  | Создать связку типа Assembler
-  -sc | Создать связку типа Assembler + C
-  -с  | Создать связку типа C
+  -in 	| Создать файлы в текущей директории
+  -s  	| Создать связку типа Assembler
+  -sc 	| Создать связку типа Assembler + C
+  -с  	| Создать связку типа C
+  -nasm | Создать связку-файл исполняемый транслятором NASM
 
 ''')

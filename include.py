@@ -21,4 +21,5 @@ INCLUDES = {'test_command': 'test',
 		    'setf': 'setflag',
 		    'setflag': 'setflag',
 		    'showsettings': 'showsettings',
-		    'settings': 'showsettings'}
+		    'settings': 'showsettings',
+		    'nasmrun': 'nasmrun'}

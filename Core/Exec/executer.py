@@ -4,6 +4,10 @@ from Core.Excepts.retcodes import STRING_TO_CODE
 import include
 import os
 
+NASM_TEMPLATE = 'nasm -f elf {} && ' + \
+'ld -m elf_i386 {}.o -o {} && ' + \
+'./{} && rm {} && ' + \
+'rm {}.o'
 
 
 class EXC:
@@ -93,11 +97,19 @@ class EXC:
 		link_type = link_setting[0]					# Type of the link
 
 		# Checking the correctness of the paths to the link files
-		if self._is_correct_link(ex_files):
+		if self._is_correct_link(ex_files) and link_setting[0] != 'nasm': # For not NASM
 			print('Output:\n')
 			os.system(encode_run(main_settings['compiler'], main_settings['compiler-flags'], ex_files, out_file_path))
 			return STRING_TO_CODE['EXIT_SUCCESS']
-		
+		if self._is_correct_link(ex_files) and link_setting[0] == 'nasm': # For NASM
+			print('Output:\n')
+			file_path = os.path.abspath(ex_files[0])
+			file_name = file_path.split('/')[-1].split('.')[0]
+			command = NASM_TEMPLATE.format(file_path,
+						  			  	   file_name, file_name,
+						  				   file_name, file_name,
+						  			  	   file_name)
+			os.system(command)
 		else:
 			print('Incorrect data in link {}.\nCheck asmr salinks'.format(command.name))
 			return STRING_TO_CODE['INCORRECT_LINK_DATA']

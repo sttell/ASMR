@@ -33,17 +33,27 @@ def c_flag(links, type_dict):
 			print(f'# {counter} -- {key} ---> Тип: {type_dict[item[0]]}. Исполняемые файлы: {len(item) - 1} шт.')
 			counter += 1
 
+def nasm_flag(links, type_dict):
+	print('Существующие связки исполняемые NASM:')
+	counter = 1
+	for key, item in links.items():
+		if type_dict[item[0]] == type_dict['nasm']:
+			print(f'# {counter} -- {key} ---> Тип: {type_dict[item[0]]}. Исполняемые файлы: {len(item) - 1} шт.')
+			counter += 1
+
 
 def run(args, opts):
 	settings = jsl.load_settings()
 	links = jsl.load_links()
 	type_dict = {'s':'Assembler',
 	 			 'sc': 'Assembler + C',
-	 			 'c': 'C'}
+	 			 'c': 'C',
+	 			 'nasm': 'NASM'}
 	opts_funcs = {'-a': a_flag,
 				  '-s': s_flag,
 				  '-sc': sc_flag,
-				  '-c': c_flag}
+				  '-c': c_flag,
+				  '-nasm': nasm_flag}
 
 	if opts:
 		try:
