@@ -1,6 +1,28 @@
 from Core.JSRL import jsloader as jsl
 
 
+'''
+					SL - Show Links.
+This command allows you to view existing file links.
+Outputs the following information:
+  1. For all links - Name, Type, number of files.
+  2. For a specific bundle-Name, Type, number of files, file paths
+To view information about a specific bundle, enter: asmr sl [Name]
+
+Ex: asmr sl TestLinkName
+
+Опции:
+  -a  | Show all existing links
+  -s  | Show links of the Assembler type
+  -sc | Show links of the Assembler + C type
+  -с  | Show links of the C type
+
+Ex: asmr sl -a
+    asmr sl -s
+    asmr sl -sc
+'''
+
+
 def a_flag(links, type_dict):
 	print('Существующие связки:')
 	for i, (key, item) in enumerate(links.items()):

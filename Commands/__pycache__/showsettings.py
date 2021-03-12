@@ -1,11 +1,5 @@
 from Core.JSRL.jsloader import load_settings
 
-
-'''
-The command shows the current build settings and the program responsible for editing files.
-'''
-
-
 def run(args, opts):
 	settings = load_settings()
 	compiler = settings['compiler']
@@ -26,8 +20,4 @@ def run(args, opts):
 
 
 def get_help(args, opts):
-	print('''\n                        showsettings -- Show Settings.
-Команда показывает текущие настройки сборки и программу отвечающую за редактирование файлов.
-
-
-''')
+	pass

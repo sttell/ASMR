@@ -1,11 +1,44 @@
 import os
 from Core.JSRL.jsloader import load_links, update_links, load_settings
 
-ASM_SPEC = '.s'
-NASM_SPEC = '.asm'
-C_SPEC = '.c'
+'''
+This command allows you to create a new bundle.
+Several options are possible: Creating bundles With, Assembler, C + Assembler with automatic file naming, and manually specifying the path.
+If the program does not find the path to the executable files, it will create a new file with the specified name along this path.
+For correct execution, it is desirable to specify the full or relative paths, or not to specify them at all.
+
+To use the command, you must specify the name of the bundle and its type, then the files will be named after the project name:
+   asmr nlink [-c | -s | -sc] [Имя Связки] ---> creates 2 or 3 files(depending on the project type) with the names at the current path: [Link Name].[c | s]
+
+If you want to set different file names, there are 2 ways to do this:
+   1. asmr nlink test.c test.s TestLink    ---> creates a bundle of the Assembler + C type named TestLink along the current path with the test.c & test.s executable files
+      asmr nlink test.s TestLink           ---> creates a bundle of the Assembler type named TestLink at the current path with the test.s executable file
+      asmr nlink test.с TestLink           ---> creates a C-type bundle named TestLink at the current path with the test.c executable file
+   
+   2. asmr nlink -c test.c TestLink        ---> it works the same way as the commands above, the only difference is in the way the file is specified, the type of bundle is explicitly specified.
+      asmr nlink -s test.s TestLink        ---> it works the same way as the commands above, the only difference is in the way the file is specified, the type of bundle is explicitly specified.
+      asmr nlink -sc test.s test.c TestLink---> it works the same way as the commands above, the only difference is in the way the file is specified, the type of bundle is explicitly specified.
+Самый простой синтаксис выглядит так:
+
+asmr nlink -sc TestLink    --->   Creates a C + Assembler bundle with the TestLink.c, TestLink.s, and TestLink.out files at the current path.
+
+Note that if the project type is not explicitly specified using the [-s | -c | -sc] option, then it is mandatory to specify the name of the files with extensions.
+You can also use absolute or relative paths instead of the name if you want to create files in different locations.
+
+Опции:
+  -in 	| Create files in the current directory
+  -s  	| Create a link of the Assembler type
+  -sc 	| Create a link of the Assembler + C type
+  -с  	| СCreate a link of the C type
+  -nasm | Create a link-a file executed by the NASM translator
+'''
+
+ASM_SPEC = '.s' 	# Default Assembler file format
+NASM_SPEC = '.asm'	# NASM Assembler file format
+C_SPEC = '.c'		# C file format
 
 
+# The function creates a file at the specified path and returns the absolute path
 def create_file(fp):
 	if os.path.isfile(fp):
 		return os.path.abspath(fp)
@@ -15,12 +48,14 @@ def create_file(fp):
 		return str(os.path.abspath(fp))
 	
 
+# -in opt
 def inplace_opt(fp, ln, lt):
-	links = load_links()
-	if ln in links.keys():
-		print('Связка с таким именем уже существует.')
-		return 1
+	links = load_links()								# load links dict
+	if ln in links.keys():								# If this link is not in the list of links
+		print('Связка с таким именем уже существует.')	# Inform user
+		return 1										# return Error
 
+	# Depending on the type of links, we create files and create a link
 	if lt == 'CASM':
 		asm_path = create_file(fp[ASM_SPEC])
 		c_path = create_file(fp[C_SPEC])
@@ -41,19 +76,28 @@ def inplace_opt(fp, ln, lt):
 	elif lt == 'NOTYPE':
 		return 1
 
+	# Update links dict
 	links[ln] = link_info
 	update_links(links)
 	return 0
 
+# Then there are functions that handle specific types of bundles in the same way.
+# |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+# VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 
+# -c option
 def c_opt(fp, ln, lt):
-	links = load_links()
-	settings = load_settings()
+	links = load_links()		# Load links dict
+	settings = load_settings()	# Load settigs dict
+
+	# if link name not in links list
 	if ln in links.keys():
 		print('Связка с таким именем существует.')
 		return 1
 
+	# if link type 'NOTYPE'
 	if lt == 'NOTYPE':
+		# create files, update link
 		c_path = create_file(ln + '.c')
 		out_path = create_file(ln + '.out')
 		link_info = ['c', c_path, out_path]
@@ -73,7 +117,7 @@ def c_opt(fp, ln, lt):
 			print('Произошла ошбика создания связки. Неверно указан файл или не удалось создать файл с таким именем.')
 			return 1
 
-
+# -s option
 def asm_opt(fp, ln, lt):
 	links = load_links()
 	settings = load_settings()
@@ -101,7 +145,7 @@ def asm_opt(fp, ln, lt):
 			print('Произошла ошбика создания связки. Неверно указан файл или не удалось создать файл с таким именем.')
 			return 1
 
-
+# -sc option
 def casm_opt(fp, ln, lt):
 	links = load_links()
 	settings = load_settings()
@@ -132,11 +176,15 @@ def casm_opt(fp, ln, lt):
 			return 1
 
 
-def unparse_args(args):
 
+# unparse arguments
+def unparse_args(args):
+	# Bit mask for all file types
 	mask = {ASM_SPEC: 0,
 			C_SPEC: 0,
 			NASM_SPEC: 0}
+	
+	# File path dict
 	fp_dict = {}
 
 	for arg in args:
@@ -152,6 +200,7 @@ def unparse_args(args):
 		else:
 			link_name = arg
 
+	# Link type
 	if mask[ASM_SPEC] == 1 and mask[C_SPEC] == 1:
 		ltype = 'CASM'
 	elif mask[ASM_SPEC] == 1 and mask[C_SPEC] == 0:
@@ -165,10 +214,11 @@ def unparse_args(args):
 
 	return fp_dict, link_name, ltype
 
-
+# -nasm option
 def nasm_opt(fp, ln, lt):
 	links = load_links()
 	settings = load_settings()
+
 	if ln in links.keys():
 		print('Связка с таким именем существует.')
 		return 1

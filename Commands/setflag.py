@@ -3,10 +3,27 @@ import subprocess as sbp
 import os
 
 
+'''
+                        sf -- Set Flags.
+This command allows you to set options that are passed to the compiler when executing
+bundle files. Options are checked for compatibility with the compiler
+by running test files in three configurations: C, Assembler, C + Assembler.
+
+To set the flags, enter: asmr sf|setf|setflag [opts]
+
+Ex: asmr sf -no-pie -fopenmp -o3
+    asmr setflag -no-pie
+    asmr setf -o3
+'''
+
+
 def run(args, opts):
-    settings = load_settings()
+    settings = load_settings() # load settings
+
     if opts:
         for opt in opts:
+
+            # TEST NEW FLAG
             compiler = settings['compiler']
             testc_file_path = os.path.abspath('./Tests/test.c')
             tests_file_path = os.path.abspath('./Tests/test.s')
@@ -32,10 +49,12 @@ def run(args, opts):
             else:
                 pass
 
+        # Update flags
         settings['compiler-flags'] = opts
         save_settings(settings)
         print('Опции успешно установлены.')
     else:
+        # reset flags
         settings['compiler-flags'] = []
         save_settings(settings)
         print('Опции передаваемые компиляторы очищены.')    
